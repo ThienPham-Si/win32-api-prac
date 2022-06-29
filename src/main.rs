@@ -52,7 +52,7 @@ impl Window {
             unsafe {
                 let mut ps = PAINTSTRUCT::default();
                 let mut rect = RECT::default();
-                let mut hbrush = CreateSolidBrush( 000000);
+                let mut hbrush = CreateSolidBrush( 0x00FFFFFF as u32);
                 
                 match message as u32 {
                     WM_PAINT => {
@@ -89,7 +89,7 @@ impl Window {
                     WM_ERASEBKGND =>{
                         println!("WM_ERASEBKGND Called!");
                         let hdc = BeginPaint(window, &mut ps);
-                        hbrush = CreateSolidBrush( 0x00FFFFFF as u32);
+                        hbrush = CreateSolidBrush( 0x00000000 as u32);
                         GetClientRect(window, &mut rect);
                         FillRect(hdc, &rect, hbrush);
                         EndPaint(window, &ps);
