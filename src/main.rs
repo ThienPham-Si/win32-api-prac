@@ -63,11 +63,13 @@ impl Window {
                             GetClientRect(window, &mut rect);
                             FillRect(hdc, &rect, hbrush);
                             EndPaint(window, &ps);
-                            thread::sleep(time::Duration::from_millis(200));
+                            thread::spawn(move || {
+                                thread::sleep(time::Duration::from_millis(200));
+                                clicked = false;
+                                InvalidateRect(window, &mut rect, true);
+                            });
                         }
          
-                        clicked = false;
-                        InvalidateRect(window, &mut rect, true);
                         LRESULT(0)
                     }
          
