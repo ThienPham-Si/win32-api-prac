@@ -79,7 +79,7 @@ impl Window {
                         LRESULT(0)
                     }
          
-                    WM_LBUTTONDOWN	=>{
+                    WM_LBUTTONUP=>{
                         println!("Clicked! {}", clicked);
                         clicked = true;
                         GetClientRect(window, &mut rect);
