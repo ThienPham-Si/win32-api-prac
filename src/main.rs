@@ -32,11 +32,13 @@ impl Window {
                 ..Default::default()
             };
 
+            let window_width = 100;
+            let window_height = 100;
 
             let atom = RegisterClassA(&wc);
             debug_assert!(atom != 0);
 
-            CreateWindowExA(Default::default(), window_class, "Clicker", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, None, None, instance, std::ptr::null());
+            CreateWindowExA(Default::default(), window_class, "Clicker", WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, window_width, window_height, None, None, instance, std::ptr::null());
 
             let mut message = MSG::default();
 
@@ -56,31 +58,29 @@ impl Window {
                 
                 match message as u32 {
                     WM_PAINT => {
-                        println!("WM_PAINT");
 
                         if clicked {
                             let hdc = BeginPaint(window, &mut ps);
                             GetClientRect(window, &mut rect);
                             FillRect(hdc, &rect, hbrush);
                             EndPaint(window, &ps);
-                            thread::spawn(move || {
+                            let handle = thread::spawn(move || {
                                 thread::sleep(time::Duration::from_millis(200));
                                 clicked = false;
                                 InvalidateRect(window, &mut rect, true);
-                            });
+                            }
+                        );
+                        // handle.join().unwrap();
                         }
-         
                         LRESULT(0)
                     }
          
                     WM_DESTROY => {
-                        println!("WM_DESTROY");
                         PostQuitMessage(0);
                         LRESULT(0)
                     }
          
                     WM_LBUTTONUP=>{
-                        println!("Clicked! {}", clicked);
                         clicked = true;
                         GetClientRect(window, &mut rect);
                         InvalidateRect(window, &mut rect, true);
@@ -89,7 +89,6 @@ impl Window {
                     }
          
                     WM_ERASEBKGND =>{
-                        println!("WM_ERASEBKGND Called!");
                         let hdc = BeginPaint(window, &mut ps);
                         hbrush = CreateSolidBrush( 0x00000000 as u32);
                         GetClientRect(window, &mut rect);
