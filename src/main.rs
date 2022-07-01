@@ -1,8 +1,10 @@
-use windows::{core::*, Win32::Foundation::*, Win32::Graphics::Gdi::ValidateRect, Win32::System::LibraryLoader::GetModuleHandleA,
-    Win32::UI::WindowsAndMessaging::*, Win32::Graphics::Gdi::*, Win32::System::Com::*};
+#![allow(dead_code)]
+use windows::{core::*, Win32::Foundation::*, Win32::System::LibraryLoader::GetModuleHandleA,
+    Win32::UI::WindowsAndMessaging::*, Win32::Graphics::Gdi::*, Win32::System::Com::*, Win32::System::Console::GetConsoleWindow};
 use std::{thread, time};
 
-static mut clicked: bool = false;
+
+static mut CLICKED: bool = false;
 struct Window {
     handle: HWND,
     clicked: bool,
@@ -59,14 +61,14 @@ impl Window {
                 match message as u32 {
                     WM_PAINT => {
 
-                        if clicked {
+                        if CLICKED {
                             let hdc = BeginPaint(window, &mut ps);
                             GetClientRect(window, &mut rect);
                             FillRect(hdc, &rect, hbrush);
                             EndPaint(window, &ps);
-                            let handle = thread::spawn(move || {
+                            let _handle = thread::spawn(move || {
                                 thread::sleep(time::Duration::from_millis(200));
-                                clicked = false;
+                                CLICKED = false;
                                 InvalidateRect(window, &mut rect, true);
                             }
                         );
@@ -81,7 +83,7 @@ impl Window {
                     }
          
                     WM_LBUTTONUP=>{
-                        clicked = true;
+                        CLICKED = true;
                         GetClientRect(window, &mut rect);
                         InvalidateRect(window, &mut rect, true);
          
@@ -106,6 +108,8 @@ impl Window {
 
 fn main() -> Result<()> {
     unsafe {
+        let window = GetConsoleWindow();
+        ShowWindow(window, SW_HIDE);
         CoInitializeEx(std::ptr::null(), COINIT_MULTITHREADED)?;
     }
     let mut window = Window::new()?;
